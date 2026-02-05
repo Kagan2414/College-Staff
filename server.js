@@ -23,6 +23,7 @@ app.use(express.static(path.join(__dirname, "public")))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+// Trust the proxy (Render / other platforms) so secure cookies work
 app.set("trust proxy", 1)
 app.get("/", (req, res) => {
   res.redirect("/login.html")
@@ -33,12 +34,24 @@ app.get("/", (req, res) => {
 app.use(
   session({
     store: new pgSession({
-      conString: process.env.DATABASE_URL,
-      createTableIfMissing: true, // 🔥 IMPORTANT
+      // use the existing pg Pool so the session store shares connections
+      pool: pool,
+      tableName: 'session',
+      createTableIfMissing: true,
     }),
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'change_this_secret',
     resave: false,
     saveUninitialized: false,
+    // When behind a proxy (like Render) enable proxy so secure cookies are set correctly
+    proxy: process.env.NODE_ENV === 'production',
+    cookie: {
+      // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
+      // require HTTPS in production
+      secure: process.env.NODE_ENV === 'production',
+      // keep default 'lax' for same-site; change to 'none' only if serving cross-site
+      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+    },
   })
 );
 
