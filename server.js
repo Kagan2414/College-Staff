@@ -223,7 +223,7 @@ app.post("/api/staff", isAuthenticated, hasRole("admin"), async (req, res) => {
     // Create staff record
     const staffResult = await client.query(
       `INSERT INTO staff (user_id, name, email, department, phone, qualification, hire_date, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7::date, true) RETURNING *`,
       [userId, name, email, department, phone, qualification, hire_date],
     )
 
@@ -248,7 +248,7 @@ app.put("/api/staff/:id", isAuthenticated, hasRole("admin"), async (req, res) =>
 
   try {
     const result = await pool.query(
-      `UPDATE staff SET name = $1, department = $2, phone = $3, qualification = $4, hire_date = $5, updated_at = NOW()
+      `UPDATE staff SET name = $1, department = $2, phone = $3, qualification = $4, hire_date = $5::date, updated_at = NOW()
        WHERE id = $6 RETURNING *`,
       [name, department, phone, qualification, hire_date, req.params.id],
     )
