@@ -150,17 +150,12 @@ CREATE INDEX IF NOT EXISTS idx_access_logs_user_id ON access_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_access_logs_login_time ON access_logs(login_time);
 
 
-CREATE TABLE IF NOT EXISTS "session" (
-  "sid" varchar NOT NULL COLLATE "default",
+-- Drop and recreate session table with proper PRIMARY KEY for connect-pg-simple
+DROP TABLE IF EXISTS "session" CASCADE;
+
+CREATE TABLE "session" (
+  "sid" varchar NOT NULL COLLATE "default" PRIMARY KEY,
   "sess" json NOT NULL,
   "expire" timestamp(6) NOT NULL
 )
 WITH (OIDS=FALSE);
-
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'session_pkey') THEN
-    EXECUTE 'ALTER TABLE "session" ADD CONSTRAINT session_pkey PRIMARY KEY ("sid")';
-  END IF;
-END
-$$ LANGUAGE plpgsql;
