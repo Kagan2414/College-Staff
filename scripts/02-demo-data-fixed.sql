@@ -23,7 +23,7 @@ ON CONFLICT (email) DO NOTHING;
 
 -- Insert staff profile rows linking to the users by email
 INSERT INTO staff (user_id, name, email, department, phone, qualification, hire_date, is_active)
-SELECT u.id, s.name, u.email, s.department, s.phone, s.qualification, s.hire_date, true
+SELECT u.id, s.name, u.email, s.department, s.phone, s.qualification, s.hire_date::date, true
 FROM (VALUES
   ('John Doe', 'Computer Science', '9876543210', 'M.Tech', '2022-01-15', 'staff1@college.edu'),
   ('Emma Smith', 'Mathematics', '9876543211', 'M.Sc', '2021-06-01', 'staff2@college.edu'),
@@ -34,7 +34,7 @@ FROM (VALUES
   ('William Martinez', 'Computer Science', '9876543216', 'M.Tech', '2017-08-18', 'staff7@college.edu'),
   ('Sophia Garcia', 'Mathematics', '9876543217', 'M.Sc', '2020-02-25', 'staff8@college.edu'),
   ('James Miller', 'Physics', '9876543218', 'M.Sc', '2016-07-30', 'staff9@college.edu'),
-  ('Isabella Rodriguez', 'Chemistry', '9876543219', 'Ph.D', '2015-12-01', 'staff10@college.edu'
+ ('Isabella Rodriguez', 'Chemistry', '9876543219', 'Ph.D', '2015-12-01', 'staff10@college.edu')
 ) AS s(name, department, phone, qualification, hire_date, email)
 JOIN users u ON u.email = s.email
 ON CONFLICT (user_id) DO UPDATE SET
@@ -42,7 +42,7 @@ ON CONFLICT (user_id) DO UPDATE SET
   department = EXCLUDED.department,
   phone = EXCLUDED.phone,
   qualification = EXCLUDED.qualification,
-  hire_date = EXCLUDED.hire_date;
+  hire_date = EXCLUDED.hire_date::date;
 
 
 -- Sample timetables using Roman numerals for day_of_week

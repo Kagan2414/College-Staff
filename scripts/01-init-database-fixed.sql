@@ -157,4 +157,10 @@ CREATE TABLE IF NOT EXISTS "session" (
 )
 WITH (OIDS=FALSE);
 
-ALTER TABLE "session" ADD CONSTRAINT IF NOT EXISTS "session_pkey" PRIMARY KEY ("sid");
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'session_pkey') THEN
+    EXECUTE 'ALTER TABLE "session" ADD CONSTRAINT session_pkey PRIMARY KEY ("sid")';
+  END IF;
+END
+$$ LANGUAGE plpgsql;
