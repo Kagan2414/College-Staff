@@ -139,7 +139,7 @@ app.post("/api/auth/logout", (req, res) => {
   if (req.session.userId) {
     pool
       .query(
-        "UPDATE activity_logs SET logout_time = NOW() WHERE id = (SELECT id FROM activity_logs WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1)",
+        "UPDATE access_logs SET logout_time = NOW() WHERE id = (SELECT id FROM access_logs WHERE user_id = $1 ORDER BY login_time DESC LIMIT 1)",
         [req.session.userId],
       )
       .catch((err) => console.error("Error updating logout time:", err))
@@ -1140,7 +1140,7 @@ async function autoRescheduleClasses(client, staffId, startDate, endDate) {
     await client.query(
       `
       INSERT INTO schedule_assignments
-      (timetable_id, original_staff_id, replacement_staff_id, scheduled_date, status)
+      (original_timetable_id, original_staff_id, replacement_staff_id, scheduled_date, status)
       VALUES ($1, $2, $3, $4, 'pending')
       `,
       [t.id, staffId, replacementStaffId, startDate]
